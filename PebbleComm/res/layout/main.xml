@@ -7,7 +7,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+            >
 
         <EditText
             android:id="@+id/editTextNotify"
@@ -26,5 +27,23 @@
             android:text="Send"
             android:onClick="sendNotification" />
     </LinearLayout>
+
+    <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:id="@+id/taskList"
+            android:layout_margin="5dp"
+            android:text="Test"
+            android:layout_weight="1"
+            android:inputType="none"/>
+
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Tasks"
+            android:id="@+id/getTasksButton"
+            android:layout_gravity="center"
+            android:onClick="getTaskList"/>
 
 </LinearLayout>

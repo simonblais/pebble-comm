@@ -3,12 +3,19 @@
       package="com.simonblais.pebblecomm"
       android:versionCode="1"
       android:versionName="1.0">
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="18"/>
+    <uses-permission android:name="com.anydo.provider.permission.READ_ANYDO_TASKS"/>
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
         <activity android:name="PebbleCommActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
             </intent-filter>
         </activity>
     </application>
