@@ -56,3 +56,14 @@ PebbleComm/out/production/PebbleKit/com/getpebble/android/kit/util/PebbleTuple$W
 PebbleComm/out/production/PebbleKit/com/getpebble/android/kit/util/PebbleTuple.class
 PebbleComm/src/.DS_Store
 PebbleComm/src/com/simonblais/.DS_Store
+*.config
+
+.DS_Store
+
+*.creator
+
+*.user
+
+*.files
+
+*.includes
