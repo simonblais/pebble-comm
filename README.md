@@ -11,5 +11,5 @@ current tasks without looking at the phone.
 
 Files:
 
-PebbleComm : Android application
-pebble_any_do : Pebble watch application
+ - PebbleComm : Android application
+ - pebble_any_do : Pebble watch application
