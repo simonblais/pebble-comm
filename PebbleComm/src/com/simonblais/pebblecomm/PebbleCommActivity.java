@@ -1,31 +1,48 @@
 package com.simonblais.pebblecomm;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
+import com.getpebble.android.kit.PebbleKit;
+import com.getpebble.android.kit.util.PebbleDictionary;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class PebbleCommActivity extends Activity
 {
     private PebbleCommReceiver pebbleReceiver = new PebbleCommReceiver();
-    
+    private PebbleKit.PebbleDataReceiver dataReceiver;
+
+    private Handler mHandler;
+
+    private final static UUID PEBBLE_APP_UUID = UUID.fromString("60113006-3F95-4AA8-8D82-0F28AB34C3E7");
+    private final static int REQ_KEY = 0x0;
+    private final static int NOTIF_KEY = 0x1;
+
+    private final static int LIST_REQ = 0x0;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);   
-        
+        setContentView(R.layout.main);
+
+        mHandler = new Handler();
+
         Intent intent = getIntent();
         String action = intent.getAction();
         
@@ -42,13 +59,43 @@ public class PebbleCommActivity extends Activity
     
     @Override
     public void onResume() {
-    	IntentFilter receiverFilter = new IntentFilter();
+    	// Receiver for media buttons
+        IntentFilter receiverFilter = new IntentFilter();
     	receiverFilter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
     	receiverFilter.addAction(Intent.ACTION_MEDIA_BUTTON);
     	receiverFilter.addAction("com.getpebble.action.RECEIVE_DATA");
-    	
+
     	this.registerReceiver(pebbleReceiver, receiverFilter);
-    	super.onResume();
+
+        super.onResume();
+
+        // Receiver for any do task list request
+        dataReceiver = new PebbleKit.PebbleDataReceiver(PEBBLE_APP_UUID) {
+            @Override
+            public void receiveData(final Context context, final int transactionId, final PebbleDictionary data) {
+                final int cmd = data.getInteger(REQ_KEY).intValue();
+
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        // All data received from the Pebble must be ACK'd, otherwise you'll hit time-outs in the
+                        // watch-app which will cause the watch to feel "laggy" during periods of frequent
+                        // communication.
+                        PebbleKit.sendAckToPebble(context, transactionId);
+
+                        switch (cmd) {
+                            case LIST_REQ:
+                                sendTaskListToPebble();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+            }
+        };
+        PebbleKit.registerReceivedDataHandler(this, dataReceiver);
+        //startWatchApp(getApplicationContext());
     }
     
     @Override
@@ -74,6 +121,29 @@ public class PebbleCommActivity extends Activity
                 textField.append( currentText + "\n" );
             }
         }
+    }
+
+    public void sendTaskList(View view) {
+        sendTaskListToPebble();
+    }
+
+    public void sendTaskListToPebble()
+    {
+        Context c = getApplicationContext();
+
+        //startWatchApp(c);
+
+        // Send message to pebble_any_do app
+        PebbleDictionary data = new PebbleDictionary();
+        data.addString( NOTIF_KEY, "List From Phone App");
+
+        PebbleKit.sendDataToPebble(c, PEBBLE_APP_UUID, data);
+    }
+
+    public void startWatchApp(Context c)
+    {
+        // Start the app first
+        PebbleKit.startAppOnPebble(c, PEBBLE_APP_UUID);
     }
 
     /** Called when the send button is pressed */
